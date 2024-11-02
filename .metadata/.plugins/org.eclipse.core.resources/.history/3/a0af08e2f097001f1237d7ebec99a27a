@@ -1,0 +1,26 @@
+package model;
+
+public class NhanVien303 extends NguoiDung303 {
+    private String viTriCongViec;
+
+    // Getters và Setters
+    public String getViTriCongViec() {
+        return viTriCongViec;
+    }
+
+    public void setViTriCongViec(String viTriCongViec) {
+        this.viTriCongViec = viTriCongViec;
+    }
+}
+
+package model;
+
+public class NhanVienBanHang303 extends NhanVien303 {
+    // Các thuộc tính và phương thức riêng (nếu có)
+}
+
+package model;
+
+public class NhanVienQuanLy303 extends NhanVien303 {
+    // Các thuộc tính và phương thức riêng (nếu có)
+}

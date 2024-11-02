@@ -1,0 +1,56 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+import model.LichChieu303;
+
+public class LichChieuDao303 extends DAO {
+
+    public LichChieuDao303() {
+        super();
+    }
+
+    public boolean luuLichChieuMoi(LichChieu303 lichChieu) {
+        String sql = "INSERT INTO LichChieu (ngayChieu, gioChieu, phongChieuId, phimId) VALUES (?, ?, ?, ?)";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, lichChieu.getNgayChieu());
+            ps.setString(2, lichChieu.getGioChieu());
+            ps.setInt(3, lichChieu.getPhongChieuId());
+            ps.setInt(4, lichChieu.getPhimId());
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<LichChieu303> layDanhSachLichChieu(String ngayChieu, String gioChieu) {
+        List<LichChieu303> danhSachLichChieu = new ArrayList<>();
+        String sql = "SELECT * FROM LichChieu WHERE ngayChieu = ? AND gioChieu = ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, ngayChieu);
+            ps.setString(2, gioChieu);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LichChieu303 lichChieu = new LichChieu303();
+                    lichChieu.setId(rs.getInt("id"));
+                    lichChieu.setNgayChieu(rs.getString("ngayChieu"));
+                    lichChieu.setGioChieu(rs.getString("gioChieu"));
+                    lichChieu.setPhongChieuId(rs.getInt("phongChieuId"));
+                    lichChieu.setPhimId(rs.getInt("phimId"));
+                    danhSachLichChieu.add(lichChieu);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return danhSachLichChieu;
+    }
+}

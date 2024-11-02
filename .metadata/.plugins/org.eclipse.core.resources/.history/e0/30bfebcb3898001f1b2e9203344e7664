@@ -1,0 +1,62 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+import model.LichChieu303;
+
+public class LichChieuDao303 extends DAO {
+
+    public LichChieuDao303() {
+        super();
+    }
+
+    public boolean luuLichChieuMoi(LichChieu303 lichChieu) {
+    	System.out.println("lich chieu moi" , lichChieu);
+        String sql = "INSERT INTO LichChieu (ngayChieu, gioChieu, thoiGianKetThuc, ngayKetThuc, phongChieuId, phimId) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, lichChieu.getNgayChieu());
+            ps.setString(2, lichChieu.getGioChieu());
+            ps.setString(3, lichChieu.getThoiGianKetThuc());
+            ps.setString(4, lichChieu.getNgayKetThuc());
+            ps.setInt(5, lichChieu.getPhongChieuId());
+            ps.setInt(6, lichChieu.getPhimId());
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<LichChieu303> layDanhSachLichChieu(String ngayChieu, String gioChieu) {
+        List<LichChieu303> danhSachLichChieu = new ArrayList<>();
+        String sql = "SELECT * FROM LichChieu WHERE ngayChieu = ? AND gioChieu < ? AND thoiGianKetThuc > ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, ngayChieu);
+            ps.setString(2, gioChieu);
+            ps.setString(3, gioChieu);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LichChieu303 lichChieu = new LichChieu303();
+                    lichChieu.setId(rs.getInt("id"));
+                    lichChieu.setNgayChieu(rs.getString("ngayChieu"));
+                    lichChieu.setGioChieu(rs.getString("gioChieu"));
+                    lichChieu.setThoiGianKetThuc(rs.getString("thoiGianKetThuc"));
+                    lichChieu.setNgayKetThuc(rs.getString("ngayKetThuc"));
+                    lichChieu.setPhongChieuId(rs.getInt("phongChieuId"));
+                    lichChieu.setPhimId(rs.getInt("phimId"));
+                    danhSachLichChieu.add(lichChieu);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return danhSachLichChieu;
+    }
+}

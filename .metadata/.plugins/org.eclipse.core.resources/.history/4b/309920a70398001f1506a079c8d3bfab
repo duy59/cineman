@@ -1,0 +1,19 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm lịch chiếu</title>
+</head>
+<body>
+    <h2>Thêm lịch chiếu</h2>
+    <form action="chonphongchieu303.jsp" method="post">
+        <label for="ngayChieu">Ngày chiếu:</label>
+        <input type="date" id="ngayChieu" name="ngayChieu" required><br><br>
+        <label for="gioChieu">Giờ chiếu:</label>
+        <input type="time" id="gioChieu" name="gioChieu" required><br><br>
+        <button type="submit">Tiếp tục</button>
+    </form>
+</body>
+</html>

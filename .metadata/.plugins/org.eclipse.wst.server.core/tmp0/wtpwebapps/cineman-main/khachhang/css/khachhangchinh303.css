@@ -1,0 +1,16 @@
+/* khachhangchinh303.css */
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+h2 {
+    color: #333;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}

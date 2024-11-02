@@ -1,0 +1,87 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+import model.LichChieu303;
+
+public class LichChieuDao303 extends DAO303 {
+
+    public LichChieuDao303() {
+        super();
+    }
+
+    public boolean luuLichChieuMoi(LichChieu303 lichChieu) {
+        // In thông tin của lịch chiếu mới
+        System.out.printf("Lịch chiếu mới: Ngày chiếu = %s, Giờ chiếu = %s, Thời gian kết thúc = %s, Ngày kết thúc = %s, Phòng chiếu ID = %d, Phim ID = %d%n",
+                lichChieu.getNgayChieu(), lichChieu.getGioChieu(), lichChieu.getThoiGianKetThuc(), lichChieu.getNgayKetThuc(), lichChieu.getPhongChieuId(), lichChieu.getPhimId());
+
+        // Lấy tất cả các lịch chiếu có ngayChieu hoặc ngayKetThuc trùng với ngayChieu của lịch chiếu mới
+        List<LichChieu303> danhSachLichChieu = layDanhSachLichChieu(lichChieu.getNgayChieu(), lichChieu.getGioChieu());
+
+        // Kiểm tra xem lịch chiếu mới có trùng với bất kỳ lịch chiếu nào trong danh sách không
+        LocalTime gioChieuMoi = LocalTime.parse(lichChieu.getGioChieu(), DateTimeFormatter.ofPattern("HH:mm"));
+        LocalTime gioKetThucMoi = LocalTime.parse(lichChieu.getThoiGianKetThuc(), DateTimeFormatter.ofPattern("HH:mm"));
+
+        for (LichChieu303 lichChieuCu : danhSachLichChieu) {
+            LocalTime gioChieuCu = LocalTime.parse(lichChieuCu.getGioChieu(), DateTimeFormatter.ofPattern("HH:mm:ss"));
+            LocalTime gioKetThucCu = LocalTime.parse(lichChieuCu.getThoiGianKetThuc(), DateTimeFormatter.ofPattern("HH:mm:ss"));
+
+            if (lichChieu.getPhongChieuId() == lichChieuCu.getPhongChieuId()) {
+                // Kiểm tra nếu gioKetThucMoi lớn hơn gioChieuCu
+                if (gioKetThucMoi.isAfter(gioChieuCu)) {
+                    System.out.println("Lịch chiếu mới trùng với lịch chiếu cũ. Không thể lưu lịch chiếu mới.");
+                    return false;
+                }
+            }
+        }
+
+        // Nếu không trùng, lưu lịch chiếu mới
+        String sql = "INSERT INTO tblLichChieu303 (ngayChieu, gioChieu, thoiGianKetThuc, ngayKetThuc, phongChieuId, phimId) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, lichChieu.getNgayChieu());
+            ps.setString(2, lichChieu.getGioChieu());
+            ps.setString(3, lichChieu.getThoiGianKetThuc());
+            ps.setString(4, lichChieu.getNgayKetThuc());
+            ps.setInt(5, lichChieu.getPhongChieuId());
+            ps.setInt(6, lichChieu.getPhimId());
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<LichChieu303> layDanhSachLichChieu(String ngayChieu, String gioChieu) {
+        List<LichChieu303> danhSachLichChieu = new ArrayList<>();
+        String sql = "SELECT * FROM tblLichChieu303 WHERE ngayChieu = ? OR ngayKetThuc = ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, ngayChieu);
+            ps.setString(2, ngayChieu);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LichChieu303 lichChieu = new LichChieu303();
+                    lichChieu.setId(rs.getInt("id"));
+                    lichChieu.setNgayChieu(rs.getString("ngayChieu"));
+                    lichChieu.setGioChieu(rs.getString("gioChieu"));
+                    lichChieu.setThoiGianKetThuc(rs.getString("thoiGianKetThuc"));
+                    lichChieu.setNgayKetThuc(rs.getString("ngayKetThuc"));
+                    lichChieu.setPhongChieuId(rs.getInt("phongChieuId"));
+                    lichChieu.setPhimId(rs.getInt("phimId"));
+                    danhSachLichChieu.add(lichChieu);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return danhSachLichChieu;
+    }
+}

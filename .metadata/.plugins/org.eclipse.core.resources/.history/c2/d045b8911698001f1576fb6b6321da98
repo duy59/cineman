@@ -1,0 +1,50 @@
+package model;
+
+public class LichChieu303 {
+    private int id;
+    private String ngayChieu;
+    private String gioChieu;
+    private int phongChieuId;
+    private int phimId;
+
+    // Getter và Setter cho từng thuộc tính
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getNgayChieu() {
+        return ngayChieu;
+    }
+
+    public void setNgayChieu(String ngayChieu) {
+        this.ngayChieu = ngayChieu;
+    }
+
+    public String getGioChieu() {
+        return gioChieu;
+    }
+
+    public void setGioChieu(String gioChieu) {
+        this.gioChieu = gioChieu;
+    }
+
+    public int getPhongChieuId() {
+        return phongChieuId;
+    }
+
+    public void setPhongChieuId(int phongChieuId) {
+        this.phongChieuId = phongChieuId;
+    }
+
+    public int getPhimId() {
+        return phimId;
+    }
+
+    public void setPhimId(int phimId) {
+        this.phimId = phimId;
+    }
+}

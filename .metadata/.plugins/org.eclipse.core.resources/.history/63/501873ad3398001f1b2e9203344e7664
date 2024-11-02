@@ -1,0 +1,125 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="dao.LichChieuDao303" %>
+<%@ page import="model.LichChieu303" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận lịch chiếu</title>
+    <link rel="stylesheet" type="text/css" href="xacnhanlichchieu303.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Xác nhận lịch chiếu</h2>
+        <%
+            String ngayChieu = request.getParameter("ngayChieu");
+            String gioChieu = request.getParameter("gioChieu");
+            String phongChieu = request.getParameter("phongChieu");
+            String phim = request.getParameter("phim");
+            int thoiLuongPhim = Integer.parseInt(request.getParameter("thoiLuongPhim")); // Đảm bảo thoiLuongPhim là số nguyên
+
+            // Tính toán thời gian kết thúc
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm");
+            java.util.Date gioChieuDate = sdf.parse(gioChieu);
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTime(gioChieuDate);
+            cal.add(java.util.Calendar.MINUTE, thoiLuongPhim);
+            String thoiGianKetThuc = sdf.format(cal.getTime());
+
+            // Parse thoiGianKetThuc to get the hour
+            java.util.Date thoiGianKetThucDate = sdf.parse(thoiGianKetThuc);
+            cal.setTime(thoiGianKetThucDate);
+            int thoiGianKetThucHour = cal.get(java.util.Calendar.HOUR_OF_DAY);
+
+            // Tính toán ngày kết thúc
+            java.text.SimpleDateFormat sdfDate = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            String ngayKetThuc = ngayChieu;
+            int gioChieuHour = Integer.parseInt(gioChieu.split(":")[0]);
+
+            if (gioChieuHour >= 22 || thoiGianKetThucHour < 4) {
+                java.util.Date ngayChieuDate = sdfDate.parse(ngayChieu);
+                cal.setTime(ngayChieuDate);
+                cal.add(java.util.Calendar.DATE, 1);
+                ngayKetThuc = sdfDate.format(cal.getTime());
+            } else {
+                ngayKetThuc = ngayChieu;
+            }
+
+            // Hiển thị thông tin đã chọn
+        %>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <tr>
+                <th>Ngày chiếu</th>
+                <td><%= ngayChieu %></td>
+            </tr>
+            <tr>
+                <th>Giờ chiếu</th>
+                <td><%= gioChieu %></td>
+            </tr>
+            <tr>
+                <th>Phòng chiếu</th>
+                <td><%= phongChieu %></td>
+            </tr>
+            <tr>
+                <th>Phim</th>
+                <td><%= phim %></td>
+            </tr>
+            <tr>
+                <th>Thời gian kết thúc</th>
+                <td><%= thoiGianKetThuc %></td>
+            </tr>
+            <tr>
+                <th>Ngày kết thúc</th>
+                <td><%= ngayKetThuc %></td>
+            </tr>
+        </table>
+
+        <form action="xacnhanlichchieu303.jsp" method="post">
+            <input type="hidden" name="ngayChieu" value="<%= ngayChieu %>">
+            <input type="hidden" name="gioChieu" value="<%= gioChieu %>">
+            <input type="hidden" name="phongChieu" value="<%= phongChieu %>">
+            <input type="hidden" name="phim" value="<%= phim %>">
+            <input type="hidden" name="thoiGianKetThuc" value="<%= thoiGianKetThuc %>">
+            <input type="hidden" name="ngayKetThuc" value="<%= ngayKetThuc %>">
+            <button type="submit" name="luuLichChieu">Lưu thông tin lịch chiếu</button>
+        </form>
+
+        <button onclick="window.location.href='quanlychinh303.jsp'">Quay lại trang chủ quản lý</button>
+
+        <%
+            // Xử lý lưu thông tin lịch chiếu khi nút "Lưu thông tin lịch chiếu" được bấm
+            if (request.getParameter("luuLichChieu") != null) {
+                LichChieu303 lichChieu = new LichChieu303();
+                lichChieu.setNgayChieu(ngayChieu);
+                lichChieu.setGioChieu(gioChieu);
+                lichChieu.setThoiGianKetThuc(thoiGianKetThuc);
+                lichChieu.setNgayKetThuc(ngayKetThuc);
+                lichChieu.setPhongChieuId(Integer.parseInt(phongChieu));
+                lichChieu.setPhimId(Integer.parseInt(phim));
+
+                LichChieuDao303 lichChieuDao = new LichChieuDao303();
+                boolean ketQua = lichChieuDao.luuLichChieuMoi(lichChieu);
+
+                if (ketQua) {
+        %>
+                    <p>Lịch chiếu đã được lưu thành công.</p>
+        <%
+                } else {
+        %>
+                    <p>Đã xảy ra lỗi khi lưu lịch chiếu.</p>
+        <%
+                }
+
+                // Đặt các tham số về rỗng
+                ngayChieu = "";
+                gioChieu = "";
+                phongChieu = "";
+                phim = "";
+                thoiGianKetThuc = "";
+                ngayKetThuc = "";
+            }
+        %>
+    </div>
+</body>
+</html>

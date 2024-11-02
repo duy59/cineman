@@ -1,0 +1,45 @@
+package dao;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import model.NguoiDung303;
+
+public class NguoiDungDAO extends DAO {
+
+    public NguoiDungDAO() {
+        super();
+    }
+
+    public boolean kiemtraDangnhap(NguoiDung303 nd) {
+        boolean kq = false;
+        if (nd.getTenDangNhap().contains("true") ||
+            nd.getTenDangNhap().contains("=") ||
+            nd.getMatKhau().contains("true") ||
+            nd.getMatKhau().contains("=")) return false;
+
+        String sql = "{call kiemtraDN(?,?)}"; // sử dụng stored procedure
+        try (Connection con = getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+            cs.setString(1, nd.getTenDangNhap());
+            cs.setString(2, nd.getMatKhau());
+            ResultSet rs = cs.executeQuery();
+            if (rs.next()) {
+                nd.setId(rs.getInt("id"));
+                nd.setHoTen(rs.getString("hoTen"));
+                nd.setNgaySinh(rs.getDate("ngaySinh"));
+                nd.setGioiTinh(rs.getString("gioiTinh"));
+                nd.setEmail(rs.getString("email"));
+                nd.setSoDienThoai(rs.getString("soDienThoai"));
+                nd.setDiaChi(rs.getString("diaChi"));
+                kq = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            kq = false;
+        }
+        return kq;
+    }
+}

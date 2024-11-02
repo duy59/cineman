@@ -1,0 +1,39 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ page import="dao.PhimDao303" %>
+<%@ page import="model.Phim303" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết phim</title>
+    <link rel="stylesheet" type="text/css" href="chitietphim303.css">
+</head>
+<body>
+    <div class="container">
+        <%
+            String idStr = request.getParameter("id");
+            if (idStr != null) {
+                int id = Integer.parseInt(idStr);
+                PhimDao303 phimDao = new PhimDao303();
+                Phim303 phim = phimDao.layChiTietPhim(id);
+
+                if (phim != null) {
+        %>
+                    <h2><%= phim.getTenPhim() %></h2>
+                    <p><%= phim.getMoTa() %></p>
+                    <!-- Hiển thị các thông tin khác nếu cần -->
+        <%
+                } else {
+        %>
+                    <p class="error-message">Phim không tồn tại.</p>
+        <%
+                }
+            } else {
+        %>
+            <p class="error-message">ID phim không hợp lệ.</p>
+        <%
+            }
+        %>
+    </div>
+</body>
+</html>

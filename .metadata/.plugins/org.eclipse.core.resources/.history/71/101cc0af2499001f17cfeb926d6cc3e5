@@ -1,0 +1,94 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="dao.LichChieuDao303" %>
+<%@ page import="model.LichChieu303" %>
+<%@ page import="java.time.LocalDate" %>
+<%@ page import="java.time.LocalTime" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.time.temporal.ChronoUnit" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận lịch chiếu</title>
+    <link rel="stylesheet" type="text/css" href="xacnhanlichchieu303.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Xác nhận lịch chiếu</h2>
+        <%
+            String ngayChieu = request.getParameter("ngayChieu");
+            String gioChieu = request.getParameter("gioChieu");
+            String phongChieu = request.getParameter("phongChieu");
+            String phim = request.getParameter("phim");
+            String thoiLuongPhim = request.getParameter("thoiGianKetThuc");
+
+            // Convert thoiLuongPhim to hours, minutes, and seconds
+            int durationMinutes = Integer.parseInt(thoiLuongPhim);
+            LocalTime gioChieuTime = LocalTime.parse(gioChieu, DateTimeFormatter.ofPattern("HH:mm"));
+            LocalTime thoiGianKetThucTime = gioChieuTime.plus(durationMinutes, ChronoUnit.MINUTES);
+
+            LocalDate ngayChieuDate = LocalDate.parse(ngayChieu);
+            LocalDate ngayKetThucDate = ngayChieuDate;
+
+            // Adjust ngayKetThucDate if thoiGianKetThucTime is before gioChieuTime
+            if (thoiGianKetThucTime.isBefore(gioChieuTime)) {
+                ngayKetThucDate = ngayChieuDate.plusDays(1);
+            }
+
+            LichChieu303 lichChieu = new LichChieu303();
+            lichChieu.setNgayChieu(ngayChieu);
+            lichChieu.setGioChieu(gioChieu);
+            lichChieu.setThoiGianKetThuc(thoiGianKetThucTime.toString());
+            lichChieu.setNgayKetThuc(ngayKetThucDate.toString());
+            lichChieu.setPhongChieuId(Integer.parseInt(phongChieu));
+            lichChieu.setPhimId(Integer.parseInt(phim));
+        %>
+        <table>
+            <tr>
+                <th>Ngày chiếu</th>
+                <th>Giờ chiếu</th>
+                <th>Thời gian kết thúc</th>
+                <th>Phim</th>
+                <th>Phòng chiếu</th>
+                <th>Ngày kết thúc</th>
+            </tr>
+            <tr>
+                <td><%= ngayChieu %></td>
+                <td><%= gioChieu %></td>
+                <td><%= thoiGianKetThucTime %></td>
+                <td><%= phim %></td>
+                <td><%= phongChieu %></td>
+                <td><%= ngayKetThucDate %></td>
+            </tr>
+        </table>
+        <form method="post" action="gdXacnhanlichchieu303.jsp">
+            <input type="hidden" name="ngayChieu" value="<%= ngayChieu %>">
+            <input type="hidden" name="gioChieu" value="<%= gioChieu %>">
+            <input type="hidden" name="phongChieu" value="<%= phongChieu %>">
+            <input type="hidden" name="phim" value="<%= phim %>">
+            <input type="hidden" name="thoiGianKetThuc" value="<%= thoiLuongPhim %>">
+            <input type="hidden" name="action" value="save">
+            <button type="submit">Lưu</button>
+        </form>
+        <button onclick="window.location.href='gdQuanlychinh303.jsp'">Quay lại trang chủ quản lý</button>
+
+        <%
+            if ("save".equals(request.getParameter("action"))) {
+                LichChieuDao303 lichChieuDao = new LichChieuDao303();
+                boolean ketQua = lichChieuDao.luuLichChieuMoi(lichChieu);
+
+                if (ketQua) {
+        %>
+                    <p>Lịch chiếu đã được lưu thành công.</p>
+        <%
+                } else {
+        %>
+                    <p>Đã xảy ra lỗi khi lưu lịch chiếu.</p>
+        <%
+                }
+            }
+        %>
+    </div>
+</body>
+</html>

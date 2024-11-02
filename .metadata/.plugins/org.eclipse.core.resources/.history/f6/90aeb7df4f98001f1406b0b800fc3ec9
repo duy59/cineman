@@ -1,0 +1,61 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ page import="java.util.List" %>
+<%@ page import="dao.PhimDao303" %>
+<%@ page import="model.Phim303" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tìm kiếm phim</title>
+    <link rel="stylesheet" type="text/css" href="timkiemphim303.css">
+</head>
+<body>
+    <h2>Tìm kiếm phim</h2>
+    <form method="post">
+        <input type="text" name="tuKhoa" placeholder="Nhập tên phim" required>
+        <button type="submit">Tìm kiếm</button>
+    </form>
+
+    <%
+        String tuKhoa = request.getParameter("tuKhoa");
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+            PhimDao303 phimDao = new PhimDao303();
+            List<Phim303> danhSachPhim = phimDao.timKiemPhim(tuKhoa);
+
+            if (danhSachPhim != null && !danhSachPhim.isEmpty()) {
+    %>
+                <h3>Kết quả tìm kiếm cho "<%= tuKhoa %>":</h3>
+                <table border="1" cellpadding="5" cellspacing="0">
+                    <tr>
+                        <th>Mã phim</th>
+                        <th>Tên phim</th>
+                        <th>Năm sản xuất</th>
+                        <th>Thể loại</th>
+                        <th>Thời lượng</th>
+                        <th>Hành động</th>
+                    </tr>
+                    <%
+                        for (Phim303 phim : danhSachPhim) {
+                    %>
+                        <tr>
+                            <td><%= phim.getId() %></td>
+                            <td><%= phim.getTenPhim() %></td>
+                            <td><%= phim.getNamsanxuat() %></td>
+                            <td><%= phim.getTheLoai() %></td>
+                            <td><%= phim.getThoigian() %> phút</td>
+                            <td><a href="chitietphim303.jsp?id=<%= phim.getId() %>">Xem chi tiết</a></td>
+                        </tr>
+                    <%
+                        }
+                    %>
+                </table>
+    <%
+            } else {
+    %>
+                <p>Không tìm thấy phim phù hợp với từ khóa.</p>
+    <%
+            }
+        }
+    %>
+</body>
+</html>

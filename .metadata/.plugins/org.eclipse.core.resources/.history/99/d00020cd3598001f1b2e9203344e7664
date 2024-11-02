@@ -1,0 +1,60 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.List" %>
+<%@ page import="dao.PhimDao303" %>
+<%@ page import="model.Phim303" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Chọn phim</title>
+</head>
+<body>
+    <h2>Chọn phim</h2>
+    <%
+        String ngayChieu = request.getParameter("ngayChieu");
+        String gioChieu = request.getParameter("gioChieu");
+        String phongChieu = request.getParameter("phongChieu");
+        PhimDao303 phimDao = new PhimDao303();
+        List<Phim303> danhSachPhim = phimDao.timKiemPhim("");
+
+        if (danhSachPhim != null && !danhSachPhim.isEmpty()) {
+    %>
+        <form action="xacnhanlichchieu303.jsp" method="post">
+            <input type="hidden" name="ngayChieu" value="<%= ngayChieu %>">
+            <input type="hidden" name="gioChieu" value="<%= gioChieu %>">
+            <input type="hidden" name="phongChieu" value="<%= phongChieu %>">
+            <label for="phim">Chọn phim:</label>
+            <select id="phim" name="phim" required>
+                <%
+                    for (Phim303 phim : danhSachPhim) {
+                %>
+                    <option value="<%= phim.getId() %>" data-thoigian="<%= phim.getThoigian() %>"><%= phim.getTenPhim() %></option>
+                <%
+                    }
+                %>
+            </select><br><br>
+            <input type="hidden" id="thoiGianKetThuc" name="thoiGianKetThuc">
+            <button type="submit">Xác nhận</button>
+        </form>
+
+        <script>
+            document.getElementById('phim').addEventListener('change', function() {
+                var selectedOption = this.options[this.selectedIndex];
+                var thoigian = parseInt(selectedOption.getAttribute('data-thoigian'));
+                var gioChieu = document.querySelector('input[name="gioChieu"]').value;
+                var gioChieuDate = new Date('1970-01-01T' + gioChieu + 'Z');
+                gioChieuDate.setMinutes(gioChieuDate.getMinutes() + thoigian);
+                var thoiGianKetThuc = gioChieuDate.toISOString().substr(11, 5);
+                document.getElementById('thoiGianKetThuc').value = thoiGianKetThuc;
+            });
+        </script>
+    <%
+        } else {
+    %>
+        <p>Không có phim nào để chọn.</p>
+    <%
+        }
+    %>
+</body>
+</html>

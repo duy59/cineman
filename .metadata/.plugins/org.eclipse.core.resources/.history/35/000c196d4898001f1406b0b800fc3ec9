@@ -1,0 +1,83 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+import model.PhongChieu303;
+import model.LichChieu303;
+
+public class PhongChieuDao303 extends DAO {
+
+    public PhongChieuDao303() {
+        super();
+    }
+
+    public List<PhongChieu303> timPhongChieuTrong(String ngayChieu, String gioChieu) {
+        List<PhongChieu303> danhSachPhongChieu = new ArrayList<>();
+        LichChieuDao303 lichChieuDao = new LichChieuDao303();
+        List<LichChieu303> danhSachLichChieu = lichChieuDao.layDanhSachLichChieu(ngayChieu, gioChieu);
+
+        String sql = "SELECT * FROM PhongChieu WHERE id NOT IN (";
+        boolean first = true;
+        for (LichChieu303 lichChieu : danhSachLichChieu) {
+            LocalTime gioChieuTime = LocalTime.parse(gioChieu, DateTimeFormatter.ofPattern("HH:mm"));
+            LocalTime gioChieuLich = LocalTime.parse(lichChieu.getGioChieu(), DateTimeFormatter.ofPattern("HH:mm"));
+            LocalTime thoiGianKetThucLich = LocalTime.parse(lichChieu.getThoiGianKetThuc(), DateTimeFormatter.ofPattern("HH:mm"));
+
+            boolean isOverlapping = false;
+
+            if (lichChieu.getNgayChieu().equals(ngayChieu) && lichChieu.getNgayKetThuc().equals(ngayChieu)) {
+                // Check if gioChieu is between gioChieuLich and thoiGianKetThucLich
+                if ((gioChieuTime.isAfter(gioChieuLich) || gioChieuTime.equals(gioChieuLich)) &&
+                    gioChieuTime.isBefore(thoiGianKetThucLich)) {
+                    isOverlapping = true;
+                }
+            } else {
+                // Check if gioChieu is between gioChieuLich and 23:59 on ngayChieu
+                if (lichChieu.getNgayChieu().equals(ngayChieu) &&
+                    (gioChieuTime.isAfter(gioChieuLich) || gioChieuTime.equals(gioChieuLich))) {
+                    isOverlapping = true;
+                }
+                // Check if gioChieu is between 00:00 and thoiGianKetThucLich on ngayKetThuc
+                if (lichChieu.getNgayKetThuc().equals(ngayChieu) &&
+                    gioChieuTime.isBefore(thoiGianKetThucLich)) {
+                    isOverlapping = true;
+                }
+            }
+
+            if (isOverlapping) {
+                if (!first) {
+                    sql += ", ";
+                }
+                sql += lichChieu.getPhongChieuId();
+                first = false;
+            }
+        }
+        sql += ")";
+
+        if (first) {
+            // No conflicting schedules, return all rooms
+            sql = "SELECT * FROM PhongChieu";
+        }
+
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    PhongChieu303 phongChieu = new PhongChieu303();
+                    phongChieu.setId(rs.getInt("id"));
+                    phongChieu.setTenPhong(rs.getString("tenPhong"));
+                    danhSachPhongChieu.add(phongChieu);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return danhSachPhongChieu;
+    }
+}

@@ -1,0 +1,87 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+import model.Phim303;
+
+public class PhimDao303 extends DAO303 {
+
+    public PhimDao303() {
+        super();
+    }
+
+    public List<Phim303> timKiemPhim(String tuKhoa) {
+        List<Phim303> danhSachPhim = new ArrayList<>();
+        String sql = "SELECT * FROM Phim WHERE tenPhim LIKE ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, "%" + tuKhoa + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Phim303 phim = new Phim303();
+                    phim.setId(rs.getInt("id"));
+                    phim.setTenPhim(rs.getString("tenPhim"));
+                    phim.setNamsanxuat(rs.getString("namsanxuat"));
+                    phim.setTheLoai(rs.getString("theLoai"));
+                    phim.setThoigian(rs.getInt("thoigian"));
+                    // Thiết lập các thuộc tính khác nếu cần
+                    danhSachPhim.add(phim);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return danhSachPhim;
+    }
+
+    public Phim303 layChiTietPhim(int id) {
+        Phim303 phim = null;
+        String sql = "SELECT * FROM Phim WHERE id = ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    phim = new Phim303();
+                    phim.setId(rs.getInt("id"));
+                    phim.setTenPhim(rs.getString("tenPhim"));
+                    phim.setNamsanxuat(rs.getString("namsanxuat"));
+                    phim.setTheLoai(rs.getString("theLoai"));
+                    phim.setDaoDien(rs.getString("daoDien"));
+                    phim.setDienVienChinh(rs.getString("dienVienChinh"));
+                    phim.setThoigian(rs.getInt("thoigian"));
+                    phim.setMoTa(rs.getString("moTa"));
+                    phim.setNgonngu(rs.getString("ngonngu"));
+                    // Thiết lập các thuộc tính khác nếu cần
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return phim;
+    }
+
+    public boolean luuPhimMoi(Phim303 phim) {
+        String sql = "INSERT INTO Phim (tenPhim, namsanxuat, theLoai, daoDien, dienVienChinh, thoigian, moTa, ngonngu) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, phim.getTenPhim());
+            ps.setString(2, phim.getNamsanxuat());
+            ps.setString(3, phim.getTheLoai());
+            ps.setString(4, phim.getDaoDien());
+            ps.setString(5, phim.getDienVienChinh());
+            ps.setInt(6, phim.getThoigian());
+            ps.setString(7, phim.getMoTa());
+            ps.setString(8, phim.getNgonngu());
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+}

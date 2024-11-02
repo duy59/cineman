@@ -1,0 +1,53 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+import model.PhongChieu303;
+
+public class PhongChieuDao303 extends DAO {
+
+    public PhongChieuDao303() {
+        super();
+    }
+
+    public List<PhongChieu303> timPhongChieuTrong(String ngayChieu, String gioChieu) {
+        List<PhongChieu303> danhSachPhongChieu = new ArrayList<>();
+        String sql = "SELECT * FROM PhongChieu WHERE id NOT IN (" +
+                     "SELECT phongChieuId FROM LichChieu " +
+                     "WHERE (ngayChieu = ? AND (? BETWEEN gioChieu AND thoiGianKetThuc OR gioChieu BETWEEN ? AND thoiGianKetThuc)) " +
+                     "OR (ngayKetThuc = ? AND (? BETWEEN gioChieu AND thoiGianKetThuc OR gioChieu BETWEEN ? AND thoiGianKetThuc)))";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            // Parse the gioChieu to LocalTime
+            LocalTime gioChieuTime = LocalTime.parse(gioChieu, DateTimeFormatter.ofPattern("HH:mm"));
+
+            // Set parameters for the SQL query
+            ps.setString(1, ngayChieu);
+            ps.setString(2, gioChieu);
+            ps.setString(3, gioChieu);
+            ps.setString(4, gioChieuTime.toString());
+            ps.setString(5, ngayChieu);
+            ps.setString(6, gioChieu);
+            ps.setString(7, gioChieu);
+            ps.setString(8, gioChieuTime.toString());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    PhongChieu303 phongChieu = new PhongChieu303();
+                    phongChieu.setId(rs.getInt("id"));
+                    phongChieu.setTenPhong(rs.getString("tenPhong"));
+                    danhSachPhongChieu.add(phongChieu);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return danhSachPhongChieu;
+    }
+}

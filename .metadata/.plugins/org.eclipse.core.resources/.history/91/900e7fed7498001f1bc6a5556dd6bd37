@@ -1,0 +1,75 @@
+package dao;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+
+import model.KhachHang303;
+import model.NguoiDung303;
+import model.NhanVien303;
+import model.NhanVienBanHang303;
+import model.NhanVienQuanLy303;
+
+public class NguoiDungDAO303 extends DAO303 {
+
+    public NguoiDungDAO303() {
+        super();
+    }
+
+    public NguoiDung303 kiemtraDangnhap(String tenDangNhap, String matKhau) {
+        NguoiDung303 nd = null;
+
+        // Log thông tin tenDangNhap và matKhau
+        System.out.println("tenDangNhap: " + tenDangNhap);
+        System.out.println("matKhau: " + matKhau);
+
+        if (tenDangNhap.contains("true") ||
+            tenDangNhap.contains("=") ||
+            matKhau.contains("true") ||
+            matKhau.contains("=")) return null;
+
+        String sql = "{call kiemtraDN(?,?)}"; // sử dụng stored procedure
+        try (Connection con = getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+            cs.setString(1, tenDangNhap);
+            cs.setString(2, matKhau);
+            try (ResultSet rs = cs.executeQuery()) {
+                if (rs.next()) {
+                    String vaiTro = rs.getString("vaiTro");
+                    System.out.println("Vai trò là " + vaiTro);
+                    switch (vaiTro) {
+                        case "NhanVien":
+                            String viTriCongViec = rs.getString("viTriCongViec");
+                            if ("QuanLy".equals(viTriCongViec)) {
+                                nd = new NhanVienQuanLy303();
+                            } else if ("BanHang".equals(viTriCongViec)) {
+                                nd = new NhanVienBanHang303();
+                            } else {
+                                return null; // Nếu viTriCongViec không hợp lệ, trả về null
+                            }
+                            break;
+                        case "KhachHang":
+                            nd = new KhachHang303();
+                            break;
+                        default:
+                            return null; // Nếu vai trò không phải là "NhanVien" hoặc "KhachHang", trả về null
+                    }
+                    if (nd != null) {
+                        nd.setId(rs.getInt("id"));
+                        nd.setTenDangNhap(rs.getString("tenDangNhap"));
+                        nd.setMatKhau(rs.getString("matKhau"));
+                        nd.setHoTen(rs.getString("hoTen"));
+                        nd.setNgaySinh(rs.getDate("ngaySinh"));
+                        if (nd instanceof NhanVien303) {
+                            ((NhanVien303) nd).setViTriCongViec(rs.getString("viTriCongViec"));
+                        }
+                        // Thiết lập các thuộc tính khác nếu cần
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return nd;
+    }
+}

@@ -1,0 +1,50 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="dao.NguoiDungDAO" %>
+<%@ page import="model.NguoiDung303" %>
+<%@ page import="model.NhanVienQuanLy303" %>
+<%@ page import="model.NhanVien303" %>
+<%@ page import="model.KhachHang303" %>
+<%@ page session="true" %>
+<%
+    String username = request.getParameter("username");
+    String password = request.getParameter("password");
+    String errorMessage = null;
+
+    if (username != null && password != null) {
+        NguoiDungDAO nguoiDungDAO = new NguoiDungDAO();
+        NguoiDung303 nguoiDung = nguoiDungDAO.kiemtraDangnhap(username, password);
+
+        if (nguoiDung != null) {
+            session.setAttribute("nguoiDung", nguoiDung);
+
+            if (nguoiDung instanceof NhanVienQuanLy303) {
+                response.sendRedirect("quanlychinh303.jsp");
+            } else if (nguoiDung instanceof KhachHang303) {
+                response.sendRedirect("khachhangchinh303.jsp");
+            }
+        } else {
+            errorMessage = "Tên đăng nhập và mật khẩu không đúng";
+        }
+    }
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ÄÄng nháº­p</title>
+    <link rel="stylesheet" type="text/css" href="login.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>ÄÄng nháº­p</h2>
+        <form action="login.jsp" method="post">
+            <label for="username">TÃªn ÄÄng nháº­p:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Máº­t kháº©u:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">ÄÄng nháº­p</button>
+        </form>
+        <div class="error-message"><%= errorMessage %></div>
+    </div>
+</body>
+</html>
