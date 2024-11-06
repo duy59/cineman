@@ -8,11 +8,10 @@ public class DAO303 {
     private static final String URL = "jdbc:mysql://localhost:3307/cineman?useUnicode=true&characterEncoding=utf8";
     private static final String USER = "root";
     private static final String PASSWORD = "Duy0509@";
-    private static Connection con; // Biến kết nối tĩnh
+    private static Connection con; 
 
     public DAO303() {
         try {
-            // Đảm bảo driver JDBC MySQL được tải
             Class.forName("com.mysql.cj.jdbc.Driver");
             if (con == null || con.isClosed()) {
                 synchronized (DAO303.class) {
@@ -38,6 +37,6 @@ public class DAO303 {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return con; // Trả về kết nối
+        return con; 
     }
 }

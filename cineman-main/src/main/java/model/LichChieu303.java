@@ -1,13 +1,17 @@
 package model;
 
+import java.sql.Date;
+import java.sql.Time;
+
 public class LichChieu303 {
     private int id;
-    private String ngayChieu;
-    private String gioChieu;
-    private String thoiGianKetThuc;
-    private String ngayKetThuc;
+    private Date ngayChieu;
+    private Time gioChieu;
+    private Time thoiGianKetThuc;
+    private Date ngayKetThuc;
     private int phongChieuId;
     private int phimId;
+    private int quanLyId;
 
     // Getter và Setter cho từng thuộc tính
     public int getId() {
@@ -18,35 +22,35 @@ public class LichChieu303 {
         this.id = id;
     }
 
-    public String getNgayChieu() {
+    public Date getNgayChieu() {
         return ngayChieu;
     }
 
-    public void setNgayChieu(String ngayChieu) {
+    public void setNgayChieu(Date ngayChieu) {
         this.ngayChieu = ngayChieu;
     }
 
-    public String getGioChieu() {
+    public Time getGioChieu() {
         return gioChieu;
     }
 
-    public void setGioChieu(String gioChieu) {
+    public void setGioChieu(Time gioChieu) {
         this.gioChieu = gioChieu;
     }
 
-    public String getThoiGianKetThuc() {
+    public Time getThoiGianKetThuc() {
         return thoiGianKetThuc;
     }
 
-    public void setThoiGianKetThuc(String thoiGianKetThuc) {
+    public void setThoiGianKetThuc(Time thoiGianKetThuc) {
         this.thoiGianKetThuc = thoiGianKetThuc;
     }
 
-    public String getNgayKetThuc() {
+    public Date getNgayKetThuc() {
         return ngayKetThuc;
     }
 
-    public void setNgayKetThuc(String ngayKetThuc) {
+    public void setNgayKetThuc(Date ngayKetThuc) {
         this.ngayKetThuc = ngayKetThuc;
     }
 
@@ -64,5 +68,13 @@ public class LichChieu303 {
 
     public void setPhimId(int phimId) {
         this.phimId = phimId;
+    }
+    
+    public int getQuanLyId() {
+        return quanLyId;
+    }
+
+    public void setQuanLyId(int quanLyId) {
+        this.quanLyId = quanLyId;
     }
 }

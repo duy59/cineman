@@ -10,7 +10,9 @@ public class Phim303 {
     private int thoigian;
     private String moTa;
     private String ngonngu;
-
+    private String status;
+    private int quanLyId;
+    
     // Getters and setters
     public int getId() {
         return id;
@@ -82,5 +84,20 @@ public class Phim303 {
 
     public void setNgonngu(String ngonngu) {
         this.ngonngu = ngonngu;
+    }
+
+    public String getStatus() { // Thêm getter cho status
+        return status;
+    }
+
+    public void setStatus(String status) { // Thêm setter cho status
+        this.status = status;
+    }
+    public int getQuanLyId() {
+        return quanLyId;
+    }
+
+    public void setQuanLyId(int quanLyId) {
+        this.quanLyId = quanLyId;
     }
 }

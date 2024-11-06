@@ -1,0 +1,108 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import model.KhachHang303;
+import model.NguoiDung303;
+import model.NhanVien303;
+import model.NhanVienBanHang303;
+import model.NhanVienQuanLy303;
+
+public class NguoiDungDAO303 extends DAO303 {
+
+    public NguoiDungDAO303() {
+        super();
+    }
+
+    public NguoiDung303 kiemtraDangnhap(String tenDangNhap, String matKhau) {
+        NguoiDung303 nd = null;
+
+        String sql = "SELECT * FROM tblNguoiDung303 WHERE tenDangNhap = ? AND matKhau = ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, tenDangNhap);
+            ps.setString(2, matKhau);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String vaiTro = rs.getString("vaiTro");
+                    System.out.println("Vai trò là " + vaiTro);
+                    String viTriCongViec = null; // Khai báo biến viTriCongViec
+                    switch (vaiTro) {
+                        case "NhanVien":
+                            viTriCongViec = getViTriCongViec(rs.getInt("id"));
+                            if ("QuanLy".equals(viTriCongViec)) {
+                                nd = new NhanVienQuanLy303();
+                                HttpSession session = request.getSession();
+                                session.setAttribute("idQuanLy", nd.getId());
+                            } else if ("BanHang".equals(viTriCongViec)) {
+                                nd = new NhanVienBanHang303();
+                            } else {
+                                return null; // Nếu viTriCongViec không hợp lệ, trả về null
+                            }
+                            break;
+                        case "KhachHang":
+                            nd = new KhachHang303();
+                            ((KhachHang303) nd).setSoLanDatVe(getSoLanDatVe(rs.getInt("id")));
+                            break;
+                        default:
+                            return null; // Nếu vai trò không hợp lệ, trả về null
+                    }
+                    if (nd != null) {
+                        nd.setId(rs.getInt("id"));
+                        nd.setTenDangNhap(rs.getString("tenDangNhap"));
+                        nd.setMatKhau(rs.getString("matKhau"));
+                        nd.setHoTen(rs.getString("hoTen"));
+                        nd.setNgaySinh(rs.getDate("ngaySinh"));
+                        nd.setGioiTinh(rs.getString("gioiTinh"));
+                        nd.setEmail(rs.getString("email"));
+                        nd.setSoDienThoai(rs.getString("soDienThoai"));
+                        nd.setDiaChi(rs.getString("diaChi"));
+                        if (nd instanceof NhanVien303) {
+                            ((NhanVien303) nd).setViTriCongViec(viTriCongViec);
+                        }
+                        // Thiết lập các thuộc tính khác nếu cần
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return nd;
+    }
+
+    private String getViTriCongViec(int id) {
+        String viTriCongViec = null;
+        String sql = "SELECT viTriCongViec FROM tblNhanVien303 WHERE id = ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    viTriCongViec = rs.getString("viTriCongViec");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return viTriCongViec;
+    }
+
+    private int getSoLanDatVe(int id) {
+        int soLanDatVe = 0;
+        String sql = "SELECT soLanDatVe FROM tblKhachHang303 WHERE id = ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    soLanDatVe = rs.getInt("soLanDatVe");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return soLanDatVe;
+    }
+}

@@ -1,0 +1,59 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.List" %>
+<%@ page import="dao.PhongChieuDao303" %>
+<%@ page import="model.PhongChieu303" %>
+<%@ page import="java.sql.Date" %>
+<%@ page import="java.sql.Time" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Chọn ngày, giờ và phòng chiếu</title>
+    <link rel="stylesheet" type="text/css" href="css/chonngaygiophongchieu303.css">
+</head>
+<body>
+    <h2>Chọn ngày, giờ và phòng chiếu</h2>
+    <form method="post">
+        <label for="ngayChieu">Ngày chiếu:</label>
+        <input type="date" id="ngayChieu" name="ngayChieu" required><br><br>
+        <label for="gioChieu">Giờ chiếu:</label>
+        <input type="time" id="gioChieu" name="gioChieu" required><br><br>
+        <button type="submit">Tìm phòng chiếu trống</button>
+    </form>
+
+    <%
+        String ngayChieuStr = request.getParameter("ngayChieu");
+        String gioChieuStr = request.getParameter("gioChieu");
+        if (ngayChieuStr != null && gioChieuStr != null) {
+            Date ngayChieu = Date.valueOf(ngayChieuStr);
+            Time gioChieu = Time.valueOf(gioChieuStr + ":00"); // Thêm giây vào thời gian
+
+            PhongChieuDao303 phongChieuDao = new PhongChieuDao303();
+            List<PhongChieu303> danhSachPhongChieu = phongChieuDao.timPhongChieuTrong(ngayChieu, gioChieu);
+
+            if (danhSachPhongChieu.isEmpty()) {
+                out.println("<p>Không có phòng chiếu trống vào thời gian này.</p>");
+            } else {
+                out.println("<table border='1'>");
+                out.println("<tr><th>ID</th><th>Tên Phòng</th><th>Chọn</th></tr>");
+                for (PhongChieu303 phongChieu : danhSachPhongChieu) {
+                    out.println("<tr>");
+                    out.println("<td>" + phongChieu.getId() + "</td>");
+                    out.println("<td>" + phongChieu.getTenPhong() + "</td>");
+                    out.println("<td>");
+                    out.println("<form action='gdChonphim303.jsp' method='post'>");
+                    out.println("<input type='hidden' name='ngayChieu' value='" + ngayChieu + "'>");
+                    out.println("<input type='hidden' name='gioChieu' value='" + gioChieu + "'>");
+                    out.println("<input type='hidden' name='phongChieu' value='" + phongChieu.getId() + "'>");
+                    out.println("<button type='submit'>Chọn</button>");
+                    out.println("</form>");
+                    out.println("</td>");
+                    out.println("</tr>");
+                }
+                out.println("</table>");
+            }
+        }
+    %>
+</body>
+</html>

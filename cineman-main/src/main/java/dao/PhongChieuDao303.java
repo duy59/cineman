@@ -1,10 +1,11 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Time;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class PhongChieuDao303 extends DAO303 {
         super();
     }
 
-    public List<PhongChieu303> timPhongChieuTrong(String ngayChieu, String gioChieu) {
+    public List<PhongChieu303> timPhongChieuTrong(Date ngayChieu, Time gioChieu) {
         List<PhongChieu303> danhSachPhongChieu = new ArrayList<>();
         LichChieuDao303 lichChieuDao = new LichChieuDao303();
         List<LichChieu303> danhSachLichChieu = lichChieuDao.layDanhSachLichChieu(ngayChieu, gioChieu);
@@ -33,13 +34,12 @@ public class PhongChieuDao303 extends DAO303 {
             System.out.println("-----------------------------");
         }
 
-        
         String sql = "SELECT * FROM tblPhongChieu303 WHERE id NOT IN (";
         boolean first = true;
         for (LichChieu303 lichChieu : danhSachLichChieu) {
-            LocalTime gioChieuTime = LocalTime.parse(gioChieu, DateTimeFormatter.ofPattern("HH:mm"));
-            LocalTime gioChieuLich = LocalTime.parse(lichChieu.getGioChieu(), DateTimeFormatter.ofPattern("HH:mm:ss"));
-            LocalTime thoiGianKetThucLich = LocalTime.parse(lichChieu.getThoiGianKetThuc(), DateTimeFormatter.ofPattern("HH:mm:ss"));
+            LocalTime gioChieuTime = gioChieu.toLocalTime();
+            LocalTime gioChieuLich = lichChieu.getGioChieu().toLocalTime();
+            LocalTime thoiGianKetThucLich = lichChieu.getThoiGianKetThuc().toLocalTime();
 
             boolean isOverlapping = false;
 

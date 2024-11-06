@@ -3,7 +3,7 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
+import java.sql.SQLException;
 import model.KhachHang303;
 import model.NguoiDung303;
 import model.NhanVien303;
@@ -26,29 +26,34 @@ public class NguoiDungDAO303 extends DAO303 {
             ps.setString(2, matKhau);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
+                    System.out.println("Truy vấn SQL trả về kết quả.");
+                    int userId = rs.getInt("id");
+                    System.out.println("ID từ ResultSet: " + userId); // Thêm dòng này
                     String vaiTro = rs.getString("vaiTro");
                     System.out.println("Vai trò là " + vaiTro);
-                    String viTriCongViec = null; // Khai báo biến viTriCongViec
+                    String viTriCongViec = null;
                     switch (vaiTro) {
                         case "NhanVien":
-                            viTriCongViec = getViTriCongViec(rs.getInt("id"));
+                            viTriCongViec = getViTriCongViec(userId);
                             if ("QuanLy".equals(viTriCongViec)) {
                                 nd = new NhanVienQuanLy303();
                             } else if ("BanHang".equals(viTriCongViec)) {
                                 nd = new NhanVienBanHang303();
                             } else {
-                                return null; // Nếu viTriCongViec không hợp lệ, trả về null
+                                System.out.println("ViTriCongViec không hợp lệ.");
+                                return null;
                             }
                             break;
                         case "KhachHang":
                             nd = new KhachHang303();
-                            ((KhachHang303) nd).setSoLanDatVe(getSoLanDatVe(rs.getInt("id")));
+                            ((KhachHang303) nd).setSoLanDatVe(getSoLanDatVe(userId));
                             break;
                         default:
-                            return null; // Nếu vai trò không hợp lệ, trả về null
+                            System.out.println("Vai trò không hợp lệ.");
+                            return null;
                     }
                     if (nd != null) {
-                        nd.setId(rs.getInt("id"));
+                        nd.setId(userId);
                         nd.setTenDangNhap(rs.getString("tenDangNhap"));
                         nd.setMatKhau(rs.getString("matKhau"));
                         nd.setHoTen(rs.getString("hoTen"));
@@ -57,14 +62,27 @@ public class NguoiDungDAO303 extends DAO303 {
                         nd.setEmail(rs.getString("email"));
                         nd.setSoDienThoai(rs.getString("soDienThoai"));
                         nd.setDiaChi(rs.getString("diaChi"));
+                        nd.setVaiTro(vaiTro);
                         if (nd instanceof NhanVien303) {
                             ((NhanVien303) nd).setViTriCongViec(viTriCongViec);
                         }
-                        // Thiết lập các thuộc tính khác nếu cần
+                        // In ra các thuộc tính của đối tượng nd
+                        System.out.println("Thông tin người dùng:");
+                        System.out.println("ID: " + nd.getId());
+                        System.out.println("Tên đăng nhập: " + nd.getTenDangNhap());
+                        System.out.println("Họ tên: " + nd.getHoTen());
+                        System.out.println("Vai trò: " + nd.getVaiTro());
+                        if (nd instanceof NhanVien303) {
+                            System.out.println("Vị trí công việc: " + ((NhanVien303) nd).getViTriCongViec());
+                        }
+                    } else {
+                        System.out.println("nd là null sau khi khởi tạo.");
                     }
+                } else {
+                    System.out.println("Truy vấn SQL không trả về kết quả.");
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return nd;
@@ -81,7 +99,7 @@ public class NguoiDungDAO303 extends DAO303 {
                     viTriCongViec = rs.getString("viTriCongViec");
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return viTriCongViec;
@@ -98,7 +116,7 @@ public class NguoiDungDAO303 extends DAO303 {
                     soLanDatVe = rs.getInt("soLanDatVe");
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return soLanDatVe;
